@@ -2,7 +2,7 @@ import * as React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Calendar, IndianRupee, Home } from "lucide-react";
+import { Loader2, Calendar, IndianRupee } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,8 +37,6 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
     register,
     handleSubmit,
     control,
-    watch,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
@@ -60,8 +58,6 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
           billPhoto: undefined,
         },
   });
-
-  const selectedCategory = watch("category");
 
   const onSubmit = async (values: ExpenseFormValues) => {
     try {
@@ -113,12 +109,7 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
       {/* Category & Payment Method - Aligned */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Expense Category</Label>
-            {selectedCategory === "Rent" && (
-              <span className="text-[11px] font-medium text-purple-400">Rent Selected</span>
-            )}
-          </div>
+          <Label>Category</Label>
           <Controller
             control={control}
             name="category"
@@ -183,46 +174,12 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
         </div>
       </div>
 
-      {/* Special Rent Details Section when Rent is chosen */}
-      {selectedCategory === "Rent" && (
-        <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-3.5 space-y-2.5 transition-all">
-          <div className="flex items-center justify-between text-xs font-medium text-purple-300">
-            <div className="flex items-center gap-2">
-              <Home className="h-4 w-4 text-purple-400" />
-              <span>Rent Payment Details</span>
-            </div>
-            <span className="text-[11px] text-purple-400/90 font-mono">Month-End Category</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 pt-0.5">
-            <span className="text-[11px] text-muted-foreground">Quick Tag:</span>
-            {["Shop Rent", "Office Rent", "Warehouse Rent", "Factory Rent", "Staff Quarter"].map(
-              (tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => {
-                    const current = watch("notes") || "";
-                    if (!current.includes(tag)) {
-                      setValue("notes", current ? `${current} • ${tag}` : tag);
-                    }
-                  }}
-                  className="rounded-md border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[11px] text-purple-300 hover:bg-purple-500/25 transition-colors"
-                >
-                  + {tag}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Notes */}
       <div className="space-y-2">
         <Label htmlFor="notes">Notes</Label>
         <Textarea
           id="notes"
-          placeholder="Optional details, vendor name, or landlord details…"
+          placeholder="Optional notes or details…"
           {...register("notes")}
         />
         {errors.notes && <p className="text-xs text-danger">{errors.notes.message}</p>}
@@ -230,7 +187,7 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
 
       {/* Bill Photo */}
       <div className="space-y-2">
-        <Label>Bill Photo / Rent Receipt</Label>
+        <Label>Bill Photo (Optional)</Label>
         <Controller
           control={control}
           name="billPhoto"

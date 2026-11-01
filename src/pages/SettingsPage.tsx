@@ -8,7 +8,6 @@ import { ThemeToggle } from "@/components/settings/ThemeToggle";
 import { PinLockSettings } from "@/components/settings/PinLockSettings";
 import { ChangePasswordDialog } from "@/components/settings/ChangePasswordDialog";
 import { BackupRestore } from "@/components/settings/BackupRestore";
-import { RentSettingsSection } from "@/components/settings/RentSettingsSection";
 import { AboutApp } from "@/components/settings/AboutApp";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
@@ -49,13 +48,6 @@ export function SettingsPage() {
       <div className="space-y-5">
         <SettingsSection title="Appearance" description="Choose how BizPilot looks on this device.">
           <SettingsRow label="Theme" control={<ThemeToggle />} />
-        </SettingsSection>
-
-        <SettingsSection
-          title="Rent & Reminders"
-          description="Configure property rent, landlord contacts, and 5-day month-end reminders."
-        >
-          <RentSettingsSection />
         </SettingsSection>
 
         <SettingsSection title="Security" description="Protect access to your business data.">

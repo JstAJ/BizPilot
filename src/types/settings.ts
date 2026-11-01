@@ -4,10 +4,6 @@ export interface AppSettings {
   id: 1;
   theme: ThemeMode;
   pinLockEnabled: boolean;
-  rentAmount?: number;
-  landlordName?: string;
-  landlordPhone?: string;
-  reminderDaysBeforeMonthEnd?: number; // default 5 days
   updatedAt: number;
 }
 

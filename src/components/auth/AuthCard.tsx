@@ -52,3 +52,4 @@ export function AuthCard({ initialMode = "login" }: AuthCardProps) {
     </div>
   );
 }
+

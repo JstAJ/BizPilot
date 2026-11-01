@@ -49,10 +49,6 @@ export async function ensureDefaultSettings() {
       id: 1,
       theme: "dark",
       pinLockEnabled: false,
-      rentAmount: 0,
-      landlordName: "",
-      landlordPhone: "",
-      reminderDaysBeforeMonthEnd: 5,
       updatedAt: Date.now(),
     });
   }

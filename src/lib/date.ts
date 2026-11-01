@@ -10,7 +10,6 @@ import {
   subDays,
   isWithinInterval,
   eachDayOfInterval,
-  differenceInCalendarDays,
 } from "date-fns";
 
 export function todayIso(): string {
@@ -60,18 +59,4 @@ export function isDateInRange(iso: string, start: Date, end: Date): boolean {
 
 export function daysBetween(start: Date, end: Date): Date[] {
   return eachDayOfInterval({ start, end });
-}
-
-export function getMonthEndReminderInfo(thresholdDays: number = 5, targetDate: Date = new Date()) {
-  const now = startOfDay(targetDate);
-  const monthEnd = endOfMonth(now);
-  const daysUntilMonthEnd = differenceInCalendarDays(monthEnd, now);
-  const isReminderPeriod = daysUntilMonthEnd >= 0 && daysUntilMonthEnd <= thresholdDays;
-  return {
-    daysUntilMonthEnd,
-    isReminderPeriod,
-    monthEnd,
-    monthEndFormatted: format(monthEnd, "dd MMM yyyy"),
-    monthName: format(now, "MMMM yyyy"),
-  };
 }
