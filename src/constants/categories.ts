@@ -1,6 +1,7 @@
 import {
   Boxes,
   Users,
+  Home,
   Zap,
   Flame,
   Truck,
@@ -18,6 +19,7 @@ export const CATEGORY_META: Record<
 > = {
   "Raw Material": { icon: Boxes, color: "text-amber-400", bg: "bg-amber-500/10" },
   Salary: { icon: Users, color: "text-sky-400", bg: "bg-sky-500/10" },
+  Rent: { icon: Home, color: "text-purple-400", bg: "bg-purple-500/10" },
   Electricity: { icon: Zap, color: "text-yellow-400", bg: "bg-yellow-500/10" },
   Gas: { icon: Flame, color: "text-orange-400", bg: "bg-orange-500/10" },
   Transport: { icon: Truck, color: "text-indigo-400", bg: "bg-indigo-500/10" },

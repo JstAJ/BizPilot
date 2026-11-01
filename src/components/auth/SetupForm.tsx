@@ -8,7 +8,11 @@ import { Label } from "@/components/ui/label";
 import { setupSchema, type SetupFormValues } from "@/lib/validation/authSchema";
 import { useAuth } from "@/hooks/useAuth";
 
-export function SetupForm() {
+interface SetupFormProps {
+  onSwitchToLogin?: () => void;
+}
+
+export function SetupForm({ onSwitchToLogin }: SetupFormProps) {
   const { setupAccount } = useAuth();
 
   const {
@@ -30,14 +34,14 @@ export function SetupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <div className="space-y-1.5">
         <Label htmlFor="username">Choose a username</Label>
         <Input id="username" autoComplete="username" placeholder="e.g. ajay" {...register("username")} />
         {errors.username && <p className="text-xs text-danger">{errors.username.message}</p>}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="password">Create a password</Label>
         <Input
           id="password"
@@ -49,7 +53,7 @@ export function SetupForm() {
         {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="confirmPassword">Confirm password</Label>
         <Input
           id="confirmPassword"
@@ -67,7 +71,20 @@ export function SetupForm() {
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
         Create account
       </Button>
-      <p className="text-center text-xs text-muted-foreground">
+
+      {onSwitchToLogin && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            className="text-xs text-gold-400 hover:text-gold-300 font-medium hover:underline transition-colors"
+          >
+            Already have an account? Sign in directly →
+          </button>
+        </div>
+      )}
+
+      <p className="text-center text-xs text-muted-foreground pt-1">
         Your data stays on this device — BizPilot works fully offline.
       </p>
     </form>

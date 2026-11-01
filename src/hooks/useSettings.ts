@@ -18,6 +18,10 @@ export function useAppSettings() {
   return { settings: data, isLoading };
 }
 
+export async function updateAppSettings(patch: Partial<import("@/types/settings").AppSettings>) {
+  await db.appSettings.update(1, { ...patch, updatedAt: Date.now() });
+}
+
 export function useTodaySale() {
   const { data, isLoading } = useDexieQuery(
     () => db.dailySales.where("date").equals(todayIso()).first(),

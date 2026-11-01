@@ -49,7 +49,25 @@ export async function ensureDefaultSettings() {
       id: 1,
       theme: "dark",
       pinLockEnabled: false,
+      rentAmount: 0,
+      landlordName: "",
+      landlordPhone: "",
+      reminderDaysBeforeMonthEnd: 5,
       updatedAt: Date.now(),
     });
   }
+}
+
+/** Clears all expenses and daily sales, resets finance balance to 0 */
+export async function clearAllBusinessData() {
+  await db.transaction("rw", [db.expenses, db.dailySales, db.financeSettings], async () => {
+    await db.expenses.clear();
+    await db.dailySales.clear();
+    await db.financeSettings.update(1, {
+      cashInHand: 0,
+      bankBalance: 0,
+      emergencyFund: 0,
+      updatedAt: Date.now(),
+    });
+  });
 }

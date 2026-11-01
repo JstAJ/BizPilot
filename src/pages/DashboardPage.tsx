@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Wallet, Receipt, TrendingUp, Banknote, Landmark, ShieldCheck, Pencil } from "lucide-react";
+import { Plus, Wallet, Receipt, TrendingUp, Banknote, Landmark, ShieldCheck, Pencil, Home } from "lucide-react";
 import { toast } from "sonner";
 import { GreetingHeader } from "@/components/dashboard/GreetingHeader";
+import { RentReminderBanner } from "@/components/dashboard/RentReminderBanner";
+import { RentReminderDialog } from "@/components/dashboard/RentReminderDialog";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { MonthlyOverview } from "@/components/dashboard/MonthlyOverview";
 import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
@@ -33,6 +35,7 @@ export function DashboardPage() {
 
   const [salesDialogOpen, setSalesDialogOpen] = React.useState(false);
   const [financeDialogOpen, setFinanceDialogOpen] = React.useState(false);
+  const [rentReminderOpen, setRentReminderOpen] = React.useState(false);
   const [salesInput, setSalesInput] = React.useState("");
   const [financeInput, setFinanceInput] = React.useState({
     cashInHand: "0",
@@ -83,6 +86,7 @@ export function DashboardPage() {
   return (
     <div>
       <GreetingHeader />
+      <RentReminderBanner />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <SummaryCard label="Today's Sales" amount={stats.todaysSales} icon={TrendingUp} tone="gold" delay={0} onClick={() => setSalesDialogOpen(true)} />
@@ -114,12 +118,19 @@ export function DashboardPage() {
         />
       </div>
 
-      <div className="mb-6 flex flex-row gap-3">
+      <div className="mb-6 flex flex-wrap gap-3">
         <Button variant="gold" className="flex-1 sm:flex-none" onClick={() => navigate(ROUTES.addExpense)}>
           <Plus className="h-4 w-4" /> Quick Add Expense
         </Button>
         <Button variant="outline" className="flex-1 sm:flex-none border-gold-500/30 text-gold-400 hover:bg-gold-500/10 hover:text-gold-300" onClick={() => setSalesDialogOpen(true)}>
           <TrendingUp className="h-4 w-4" /> Record Today's Sales
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1 sm:flex-none border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+          onClick={() => setRentReminderOpen(true)}
+        >
+          <Home className="h-4 w-4 text-purple-400" /> Rent Reminder
         </Button>
       </div>
 
@@ -203,6 +214,12 @@ export function DashboardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <RentReminderDialog
+        open={rentReminderOpen}
+        onOpenChange={setRentReminderOpen}
+        onRecordRent={() => navigate(ROUTES.addExpense)}
+      />
     </div>
   );
 }

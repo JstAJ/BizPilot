@@ -2,7 +2,7 @@ import * as React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Calendar, IndianRupee } from "lucide-react";
+import { Loader2, Calendar, IndianRupee, Home } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,9 +19,11 @@ import { BillPhotoUpload } from "@/components/expenses/BillPhotoUpload";
 import { expenseSchema, type ExpenseFormValues } from "@/lib/validation/expenseSchema";
 import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from "@/types/expense";
 import type { Expense } from "@/types/expense";
+import { CATEGORY_META, PAYMENT_METHOD_ICONS } from "@/constants/categories";
 import { createExpense, updateExpense } from "@/hooks/useExpenses";
 import { todayIso } from "@/lib/date";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils";
 
 interface ExpenseFormProps {
   expense?: Expense;
@@ -35,6 +37,8 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
@@ -57,6 +61,8 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
         },
   });
 
+  const selectedCategory = watch("category");
+
   const onSubmit = async (values: ExpenseFormValues) => {
     try {
       if (isEditing && expense) {
@@ -75,6 +81,7 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      {/* Date & Amount */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="date">Date</Label>
@@ -103,23 +110,43 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
         </div>
       </div>
 
+      {/* Category & Payment Method - Aligned */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Category</Label>
+          <div className="flex items-center justify-between">
+            <Label>Expense Category</Label>
+            {selectedCategory === "Rent" && (
+              <span className="text-[11px] font-medium text-purple-400">Rent Selected</span>
+            )}
+          </div>
           <Controller
             control={control}
             name="category"
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {EXPENSE_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
+                  {EXPENSE_CATEGORIES.map((cat) => {
+                    const meta = CATEGORY_META[cat];
+                    const Icon = meta.icon;
+                    return (
+                      <SelectItem key={cat} value={cat}>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "flex h-5 w-5 items-center justify-center rounded",
+                              meta.bg
+                            )}
+                          >
+                            <Icon className={cn("h-3.5 w-3.5", meta.color)} />
+                          </span>
+                          <span>{cat}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             )}
@@ -134,13 +161,16 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
             name="paymentMethod"
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select method" />
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 <SelectContent>
                   {PAYMENT_METHODS.map((method) => (
                     <SelectItem key={method} value={method}>
-                      {method}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{PAYMENT_METHOD_ICONS[method]}</span>
+                        <span>{method}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -153,14 +183,54 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
         </div>
       </div>
 
+      {/* Special Rent Details Section when Rent is chosen */}
+      {selectedCategory === "Rent" && (
+        <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-3.5 space-y-2.5 transition-all">
+          <div className="flex items-center justify-between text-xs font-medium text-purple-300">
+            <div className="flex items-center gap-2">
+              <Home className="h-4 w-4 text-purple-400" />
+              <span>Rent Payment Details</span>
+            </div>
+            <span className="text-[11px] text-purple-400/90 font-mono">Month-End Category</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            <span className="text-[11px] text-muted-foreground">Quick Tag:</span>
+            {["Shop Rent", "Office Rent", "Warehouse Rent", "Factory Rent", "Staff Quarter"].map(
+              (tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => {
+                    const current = watch("notes") || "";
+                    if (!current.includes(tag)) {
+                      setValue("notes", current ? `${current} • ${tag}` : tag);
+                    }
+                  }}
+                  className="rounded-md border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[11px] text-purple-300 hover:bg-purple-500/25 transition-colors"
+                >
+                  + {tag}
+                </button>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Notes */}
       <div className="space-y-2">
         <Label htmlFor="notes">Notes</Label>
-        <Textarea id="notes" placeholder="Optional details about this expense…" {...register("notes")} />
+        <Textarea
+          id="notes"
+          placeholder="Optional details, vendor name, or landlord details…"
+          {...register("notes")}
+        />
         {errors.notes && <p className="text-xs text-danger">{errors.notes.message}</p>}
       </div>
 
+      {/* Bill Photo */}
       <div className="space-y-2">
-        <Label>Bill Photo</Label>
+        <Label>Bill Photo / Rent Receipt</Label>
         <Controller
           control={control}
           name="billPhoto"
@@ -168,6 +238,7 @@ export function ExpenseForm({ expense }: ExpenseFormProps) {
         />
       </div>
 
+      {/* Submit / Cancel Buttons */}
       <div className="flex gap-3 pt-2">
         <Button type="button" variant="outline" className="flex-1" onClick={() => navigate(-1)}>
           Cancel

@@ -1,6 +1,7 @@
 export const EXPENSE_CATEGORIES = [
   "Raw Material",
   "Salary",
+  "Rent",
   "Electricity",
   "Gas",
   "Transport",

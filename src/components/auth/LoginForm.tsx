@@ -10,7 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { loginSchema, type LoginFormValues } from "@/lib/validation/authSchema";
 import { useAuth } from "@/hooks/useAuth";
 
-export function LoginForm() {
+interface LoginFormProps {
+  onSwitchToSignup?: () => void;
+}
+
+export function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -35,14 +39,14 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <div className="space-y-1.5">
         <Label htmlFor="username">Username</Label>
         <Input id="username" autoComplete="username" placeholder="e.g. ajay" {...register("username")} />
         {errors.username && <p className="text-xs text-danger">{errors.username.message}</p>}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Label htmlFor="password">Password</Label>
         <div className="relative">
           <Input
@@ -77,6 +81,18 @@ export function LoginForm() {
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
         Sign in
       </Button>
+
+      {onSwitchToSignup && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            onClick={onSwitchToSignup}
+            className="text-xs text-gold-400 hover:text-gold-300 font-medium hover:underline transition-colors"
+          >
+            Don't have an account? Create an account →
+          </button>
+        </div>
+      )}
     </form>
   );
 }

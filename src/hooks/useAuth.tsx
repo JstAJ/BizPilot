@@ -53,8 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refresh]);
 
   const setupAccount = React.useCallback(async (username: string, password: string) => {
-    const existing = await db.users.count();
-    if (existing > 0) throw new Error("An account already exists on this device.");
+    const existing = await db.users.where("username").equalsIgnoreCase(username).first();
+    if (existing) {
+      throw new Error("An account with this username already exists. Please sign in directly.");
+    }
     const passwordHash = await hashSecret(password);
     const user = {
       id: generateId("user"),
@@ -72,10 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = React.useCallback(
     async (username: string, password: string, rememberMe: boolean) => {
-      const user = await db.users.where("username").equals(username).first();
-      if (!user) throw new Error("Invalid username or password.");
+      const user = await db.users.where("username").equalsIgnoreCase(username).first();
+      if (!user) throw new Error("Account not found. Please check your username or create an account.");
       const ok = await verifySecret(password, user.passwordHash);
-      if (!ok) throw new Error("Invalid username or password.");
+      if (!ok) throw new Error("Incorrect password. Please try again.");
       const s = saveSession(user.id, user.username, rememberMe);
       setSession(s);
       setLocked(false);
