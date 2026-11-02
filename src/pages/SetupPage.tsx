@@ -3,8 +3,8 @@ import { AuthCard } from "@/components/auth/AuthCard";
 
 export function SetupPage() {
   return (
-    <AuthLayout eyebrow="Sign in or set up your business account">
-      <AuthCard initialMode="signup" />
+    <AuthLayout eyebrow="Sign in to your account or create a new one">
+      <AuthCard />
     </AuthLayout>
   );
 }

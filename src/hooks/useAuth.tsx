@@ -19,6 +19,8 @@ interface AuthContextValue {
   locked: boolean;
   setupAccount: (username: string, password: string) => Promise<void>;
   login: (username: string, password: string, rememberMe: boolean) => Promise<void>;
+  resetPassword: (username: string, newPassword: string) => Promise<void>;
+  getStoredUsers: () => Promise<import("@/types/auth").User[]>;
   logout: () => Promise<void>;
   lock: () => void;
   unlockWithPin: (pin: string) => Promise<boolean>;
@@ -53,14 +55,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refresh]);
 
   const setupAccount = React.useCallback(async (username: string, password: string) => {
-    const existing = await db.users.where("username").equalsIgnoreCase(username).first();
+    const cleanUsername = username.trim();
+    const existing = await db.users.where("username").equalsIgnoreCase(cleanUsername).first();
     if (existing) {
-      throw new Error("An account with this username already exists. Please sign in directly.");
+      throw new Error(`Username "${cleanUsername}" already exists. Please switch to Sign In to access your data.`);
     }
     const passwordHash = await hashSecret(password);
     const user = {
       id: generateId("user"),
-      username,
+      username: cleanUsername,
       passwordHash,
       pinEnabled: false,
       createdAt: Date.now(),
@@ -74,16 +77,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = React.useCallback(
     async (username: string, password: string, rememberMe: boolean) => {
-      const user = await db.users.where("username").equalsIgnoreCase(username).first();
-      if (!user) throw new Error("Account not found. Please check your username or create an account.");
+      const cleanUsername = username.trim();
+      const user = await db.users.where("username").equalsIgnoreCase(cleanUsername).first();
+      if (!user) {
+        throw new Error(`Account "${cleanUsername}" does not exist. Please check your username or Create a New Account.`);
+      }
       const ok = await verifySecret(password, user.passwordHash);
-      if (!ok) throw new Error("Incorrect password. Please try again.");
+      if (!ok) {
+        throw new Error("Incorrect password. Please try again or use 'Forgot Password'.");
+      }
       const s = saveSession(user.id, user.username, rememberMe);
       setSession(s);
       setLocked(false);
     },
     []
   );
+
+  const getStoredUsers = React.useCallback(async () => {
+    return db.users.toArray();
+  }, []);
+
+  const resetPassword = React.useCallback(async (username: string, newPassword: string) => {
+    const cleanUsername = username.trim();
+    const user = await db.users.where("username").equalsIgnoreCase(cleanUsername).first();
+    if (!user) {
+      throw new Error(`No account found with username "${cleanUsername}".`);
+    }
+    const passwordHash = await hashSecret(newPassword);
+    await db.users.update(user.id, { passwordHash });
+  }, []);
 
   const logout = React.useCallback(async () => {
     clearSession();
@@ -160,6 +182,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     locked,
     setupAccount,
     login,
+    resetPassword,
+    getStoredUsers,
     logout,
     lock,
     unlockWithPin,
